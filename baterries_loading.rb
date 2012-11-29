@@ -1,5 +1,17 @@
 def checkio(stones)
-	return nil
+	left = [0, []]
+	right = [0, []]
+	sorted = stones.sort()
+	whilekkkkkk(sorted.length() > 0)
+		hand = left[0] < right[0] ? left : right
+		stone = sorted.pop()
+		hand[0] += stone
+		hand[1] << stone
+	end
+
+	# println left
+	# println right
+	return (left[0] - right[0]).abs
 end
 
 # util methods
