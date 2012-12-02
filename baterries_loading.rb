@@ -2,7 +2,7 @@ def checkio(stones)
 	left = [0, []]
 	right = [0, []]
 	sorted = stones.sort()
-	whilekkkkkk(sorted.length() > 0)
+	while(sorted.length() > 0)
 		hand = left[0] < right[0] ? left : right
 		stone = sorted.pop()
 		hand[0] += stone

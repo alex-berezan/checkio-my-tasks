@@ -14,43 +14,51 @@ def sum(list)
 	return a_sum
 end
 
-def store(results, list1, list2)
-	value = [list1.sort(), list2.sort()].sort { |a, b| a.length <=> b.length }
-	key = value.to_s()
-	value = [list1, list2]
-	results[key] = value << [sum(value[0]), sum(value[1]), (sum(value[0]) - sum(value[1])).abs]
+def copy_with_adding(list, item_to_add)
+	return copy(list) << item_to_add
 end
 
-def gamble(results, currentList, toTakeList)
-	store(results, currentList, toTakeList)
-	if(toTakeList.length == 0)# currentList.length == toTakeList.length)
+def copy_with_removal_at(list, removal_index)
+	result_list = copy(list)
+	result_list.delete_at(removal_index)
+	return result_list
+end
+
+def to_result_value(left_list, right_list)
+	dif = [(sum(left_list) - sum(right_list)).abs]
+	hands = [left_list.sort(), right_list.sort()]
+				.sort { |a, b| a.length <=> b.length }
+	return hands << dif
+end
+
+def store(result_hash, left_list, right_list)
+	value = to_result_value(left_list, right_list)
+	key = value.to_s()
+	result_hash[value.to_s()] = value
+end
+
+def gamble(result_hash, current_list, remaining_list)
+	store(result_hash, current_list, remaining_list)
+	if(remaining_list.length == 0)
 		return
 	end
 	i = 0
-	for item in toTakeList
-		newList = copy(currentList)
-		newList << item
-		toTakeListCopy = copy(toTakeList)
-		toTakeListCopy.delete_at(i)
-		gamble(results, newList, toTakeListCopy)
+	for item in remaining_list
+		gamble(result_hash, copy_with_adding(current_list, item), copy_with_removal_at(remaining_list, i))
 		i += 1
 	end
 end
 
 def value(item)
-	return item[2][2]
+	return item[2][0]
 end
-
-def checkio(toTakeList) 
-	results = Hash.new() 
-	gamble(results, [], toTakeList)
-	# println results
+ 
+def checkio(remaining_list) 
+	result_hash = Hash.new() 
+	gamble(result_hash, [], remaining_list)
 	sorted = []
-	results.each { |key, value| sorted << value }
+	result_hash.each { |key, value| sorted << value }
 	sorted = sorted.sort { |a, b| value(a) <=> value(b) }
-	# println sorted
-	# sorted.each { |key | println key }
-	# println value(sorted[0])
 	return value(sorted[0])
 end
 
@@ -61,7 +69,7 @@ def assert(condition, message)
 	end
 	println "FAIL - #{message}"
 end
-
+  
 # assertions
 assert(checkio([10, 10]) == 0,  "First,  with equal weights")
 assert(checkio([10]) == 10,  "Second,  with single detail")
@@ -69,17 +77,3 @@ assert(checkio([5, 8, 13, 27, 14]) == 3,  "Third,  more complex")
 assert(checkio([5, 5, 6, 5]) == 1,  "Fourth,  with one different detail")
 assert(checkio([12, 30, 30, 32, 42, 49]) == 9,  "Fifth,  with big numbers")
 assert(checkio([1, 1, 1, 3]) == 0,  "Sixth,  don't forget - you can hold different quantity of details")
-
-
-# expected result
-# 1 - 2 3 4
-# 2 - 1 3 4
-# 1 2 - 3 4
-# 1 2 3 - 4
-# 1 4 - 2 3
-# 2 4 - 1 3
-# 3 4 - 1 2
-# 2 3 4 - 1
-# 1 3 4 - 2
-# 1 2 4 - 3
-# 1 2 3 4 - _
